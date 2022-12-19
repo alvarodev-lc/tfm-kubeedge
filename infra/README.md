@@ -12,6 +12,24 @@ ArgoCD metrics need prometheus stack to be deployed BEFORE. If not, it will resu
 
 In prometheus-stack.yaml set additionalScrapeConfigs using your internal IP addresses and hostnames, or just delete if you are not going to use custom endpoints for metrics. This one is set to use the [metrics server](https://github.com/kubernetes-sigs/metrics-server).
 
+Get the helm repository
+
+```sh
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+
+Update helm repositories
+
+```sh
+helm repo update
+```
+
+Install Prometheus Stack version 35.0.3 using Helm
+
+```sh
+helm install prometheus --create-namespace --namespace monitoring --values /home/alvaro/infra/prometheus.yaml prometheus-community/kube-prometheus-stack --version 35.0.3
+```
+
 ## Metrics Server
 
 Deploys metric server on the Cloud. To deploy metric server components on the Edge nodes and get further information, please check the metrics server PDF file in this folder.
