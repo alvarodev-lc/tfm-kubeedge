@@ -4,21 +4,41 @@ This folder contains yaml files to deploy services directly into the kubernetes 
 
 These files are used on a KubeEdge cluster and therefore asume worker nodes have agent,edge taints. It also asumes that the hostname of the cloudcore agent is cloudcore, if not, you can change it yourself on the yaml files.
 
+Please note that you should replace the --values flag path to the path where your values.yaml files are located.
+
 ## ArgoCD
 
 ArgoCD metrics need prometheus stack to be deployed BEFORE. If not, it will result in a crash on deploy. If you do not want to deploy prometheus stack, you can remove the metrics component from argocd.yaml
+
+Get Helm repository
+
+```sh
+helm repo add argo https://argoproj.github.io/argo-helm
+```
+
+Update Helm repositories
+
+```sh
+helm repo update
+```
+
+Install ArgoCD version 4.3.1 using Helm
+
+```sh
+helm install argo-cd --create-namespace --namespace argo-cd --values values.yaml --version 4.3.1 argo/argo-cd
+```
 
 ## Prometheus Stack
 
 In prometheus-stack.yaml set additionalScrapeConfigs using your internal IP addresses and hostnames, or just delete if you are not going to use custom endpoints for metrics. This one is set to use the [metrics server](https://github.com/kubernetes-sigs/metrics-server).
 
-Get the helm repository
+Get the Helm repository
 
 ```sh
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 ```
 
-Update helm repositories
+Update Helm repositories
 
 ```sh
 helm repo update
@@ -33,3 +53,7 @@ helm install prometheus --create-namespace --namespace monitoring --values /home
 ## Metrics Server
 
 Deploys metric server on the Cloud. To deploy metric server components on the Edge nodes and get further information, please check the metrics server PDF file in this folder.
+
+```sh
+kubectl apply -f metrics-server.yaml
+```
