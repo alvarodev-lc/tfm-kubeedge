@@ -12,10 +12,10 @@ File supervisord.conf is under /etc/supervidor and must be replaced with the por
 
 To reload supervisor and force it to read new processes and configuration, use this commands:
 
-'''sh
+```sh
 sudo supervisorctl reread
-''
+```
 
-'''sh
+```sh
 sudo supervisorctl update
-''
+```
