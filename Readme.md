@@ -77,4 +77,4 @@ sudo gitlab-runner register
 
 IMPORTANT!! Edit runner on gitlab so that it runs jobs without tags if you use no tags on your CI yaml file
 
-Create personal access token as explainer [here](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) and use it as a secret on CI/CD to be able to push to another repo (For the CI yaml file).
+Create personal access token as explained [here](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html) and use it as a secret on CI/CD to be able to push to another repo (For the CI yaml file).
