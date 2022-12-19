@@ -57,6 +57,8 @@ Add user to docker group. Required for kaniko.
 sudo usermod -aG docker gitlab-runner
 ```
 
+Initialize the runner
+
 ```sh
 sudo gitlab-runner start
 ```
