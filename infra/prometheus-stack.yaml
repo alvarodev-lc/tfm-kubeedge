@@ -2722,12 +2722,12 @@ prometheus:
         scrape_interval: 10s
         honor_labels: true
         static_configs:
-          - targets: ['192.168.0.101:10351']
+          - targets: ['<NODE1_PRIVATE_IP>:10351']
             labels:
               node: "edgenode1"
-          - targets: ['192.168.0.116:10351']
+          - targets: ['<NODE2_PRIVATE_IP>:10351']
             labels:
-              node: "rpi3"
+              node: "edgenode2"
         scheme: https
         tls_config:
           insecure_skip_verify: true
