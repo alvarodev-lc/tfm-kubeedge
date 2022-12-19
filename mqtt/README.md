@@ -1,3 +1,5 @@
+# Mosquitto
+
 Set this configuration under /etc/mosquitto/mosquitto.conf
 
 On the latest ubuntu distro (22.04 Jammy) mosquitto only listens on localhost port 1883 by default. Further configuration is needed to use mqtt on different nodes behind a router.
