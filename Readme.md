@@ -23,6 +23,10 @@ Development environment used to create the Kubernetes cluster:
 
 TODO
 
+## ArgoCD RBAC
+
+TODO
+
 ## Gitlab Runner
 
 Choose a hardware to use as gitlab-runner, could be a worker node or any other hardware.
