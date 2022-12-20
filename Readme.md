@@ -87,10 +87,18 @@ References:
 - [**Keadm getting started**](https://kubeedge.io/en/docs/setup/keadm/)
 - [**Keadm releases**](https://github.com/kubeedge/kubeedge/releases)
 
-Install KubeEdge (amd64). I will be using version 1.9.2, please check the [compatibility matrix](https://github.com/kubeedge/kubeedge#kubernetes-compatibility) before installing a specific version.
+Install KubeEdge. In this case we will install amd64 version on the cloud and arm64 on the edge nodes since I am using Raspberry Pi's. I will be using version 1.9.2, please check the [compatibility matrix](https://github.com/kubeedge/kubeedge#kubernetes-compatibility) before installing a specific version.
+
+For amd64
 
 ```sh
 wget https://github.com/kubeedge/kubeedge/releases/download/v1.9.2/keadm-v1.9.2-linux-amd64.tar.gz
+```
+
+For arm64
+
+```sh
+wget https://github.com/kubeedge/kubeedge/releases/download/v1.9.2/keadm-v1.9.2-linux-arm64.tar.gz 
 ```
 
 Extract contents and move **keadm** executable to **/usr/local/bin** to make keadm command executable from global context
@@ -135,9 +143,45 @@ kubectl get nodes
 
 ## Edge
 
-## ArgoCD RBAC
+Once KubeEdge is installed following the [KubeEdge section](https://github.com/alvarodev-lc/tfm-kubeedge#kubeedge), and the token has been obtained, we can join edge nodes to the cluster
 
-TODO
+```sh
+keadm join --cloudcore-ipport=KUBEDGE_CLOUDCORE_ADDRESS:10000 --edgenode-name=<NODE-NAME> --token=<TOKEN> --kubeedge-version=<Version>
+```
+
+This should automatically start the Edgecore process, and join the node to the cluster. Check logs to see if it's working as expected
+
+```sh
+sudo systemctl status edgecore
+```
+
+or
+
+```sh
+sudo journalctl -u edgecore.service -xe
+```
+
+To restart edgecore
+
+```sh
+sudo systemctl restart edgecore
+```
+
+## Troubleshooting
+
+If you are getting cgroup errors on the edgecore, try to modify edgecore configuration under **/etc/kubeedge/config/edgecore.yaml** and set
+
+```sh
+cgroupDriver: systemd
+```
+
+After that, reboot the Edgecore process and check logs.
+
+If edgecore can't connect to the cloud because it says a node with that hostname already exists, it probably is because you had previously joined that node and it left the cluster before, rebooting both the cloud and the edge node should be enough to fix that.
+
+## Infrastructure
+
+To deploy different services to the cluster we just created, please check the [infrastructure documentation](https://github.com/alvarodev-lc/tfm-kubeedge/tree/master/infra)
 
 ## Gitlab Runner
 
