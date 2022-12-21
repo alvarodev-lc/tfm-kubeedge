@@ -80,6 +80,12 @@ Confirm your cluster is up and running
 kubectl cluster-info
 ```
 
+To access the Kubernetes dashboard, forward the service port to the port you want to use
+
+```sh
+kubectl port-forward -n kube-system service/kubernetes-dashboard 8080:443
+```
+
 ## KubeEdge
 
 References:
@@ -182,6 +188,210 @@ If edgecore can't connect to the cloud because it says a node with that hostname
 ## Infrastructure
 
 To deploy different services to the cluster we just created, please check the [infrastructure documentation](https://github.com/alvarodev-lc/tfm-kubeedge/tree/master/infra)
+
+## Metrics
+
+To enable metrics, first deploy the [metrics server](https://github.com/alvarodev-lc/tfm-kubeedge/tree/master/infra)
+
+The cluster CA is required to establish communication between the cloudcore and the edgecore.
+
+To generate the certificated needed, we will use [certgen.sh](https://github.com/rlopezv/gitops/blob/master/infra/kubeedge/certgen.sh). It should be copied to **/etc/kubeedge**
+
+```sh
+## Set working directory
+cd /etc/kubeedge
+
+# Declare vars
+export CLOUDCOREIPS="<CLOUD_IP>"
+export K8SCA_FILE=/var/snap/microk8s/current/certs/ca.crt
+export K8SCA_KEY_FILE=/var/snap/microk8s/current/certs/ca.key
+
+# Generate certificates
+./certgen.sh -E stream
+```
+
+## Enable routing
+
+Once these certificates are generated it's required to modify the iptables and the KubeEdge configuration files on both cloudside and edgeside.
+
+On cloudside
+
+Modify **/etc/kubeedge/config/cloudcore.yaml**
+
+Enable stream
+
+```sh
+cloudStream:
+  # change
+  enable: true
+```
+
+```sh
+iptables -t nat -A OUTPUT -p tcp --dport 10350 -j DNAT --to <CLOUD_IP>:10003
+```
+
+On edge side (every edge node)
+
+Modify /etc/kubeedge/config/edgecore.yaml
+
+Enable stream
+
+```sh
+edgeStream:
+  # change
+  enable: true
+  # Check value of cloudserver
+  server: [CLOUDCOREIP]:10004 
+```
+
+Restart Cloudcore and Edgecore after making the changes to the configuration
+
+Once done, edge node metrics should be accessible from edge nodes
+
+```sh
+# On cloud side
+curl -k "https://[NODE_IP]:10351/stats/summary?only_cpu_and_memory=true"
+```
+
+Example
+
+```json
+{
+ "node": {
+  "nodeName": "edgenode01",
+  "systemContainers": [
+   {
+    "name": "kubelet",
+    "startTime": "2022-10-22T16:17:01Z",
+    "cpu": {
+     "time": "2022-10-22T18:45:07Z",
+     "usageNanoCores": 36490670,
+     "usageCoreNanoSeconds": 252662549983
+    },
+    "memory": {
+     "time": "2022-10-22T18:45:07Z",
+     "usageBytes": 30613504,
+     "workingSetBytes": 30613504,
+     "rssBytes": 27066368,
+     "pageFaults": 22869,
+     "majorPageFaults": 0
+    }
+   },
+   {
+    "name": "runtime",
+    "startTime": "2022-10-20T16:47:00Z",
+    "cpu": {
+     "time": "2022-10-22T18:45:13Z",
+     "usageNanoCores": 13118760,
+     "usageCoreNanoSeconds": 1786750198925
+    },
+    "memory": {
+     "time": "2022-10-22T18:45:13Z",
+     "usageBytes": 115150848,
+     "workingSetBytes": 51351552,
+     "rssBytes": 36360192,
+     "pageFaults": 19054431,
+     "majorPageFaults": 297
+    }
+   },
+   {
+    "name": "pods",
+    "startTime": "2022-10-20T16:47:31Z",
+    "cpu": {
+     "time": "2022-10-22T18:45:03Z",
+     "usageNanoCores": 0,
+     "usageCoreNanoSeconds": 0
+    },
+    "memory": {
+     "time": "2022-10-22T18:45:03Z",
+     "availableBytes": 3977527296,
+     "usageBytes": 0,
+     "workingSetBytes": 0,
+     "rssBytes": 0,
+     "pageFaults": 0,
+     "majorPageFaults": 0
+    }
+   }
+  ],
+  "startTime": "2022-10-20T16:47:01Z",
+  "cpu": {
+   "time": "2022-10-22T18:45:02Z",
+   "usageNanoCores": 62053022,
+   "usageCoreNanoSeconds": 9409379988290
+  },
+  "memory": {
+   "time": "2022-10-22T18:45:02Z",
+   "availableBytes": 2643247104,
+   "usageBytes": 2401181696,
+   "workingSetBytes": 1334280192,
+   "rssBytes": 165142528,
+   "pageFaults": 76527,
+   "majorPageFaults": 165
+  },
+  "network": {
+   "time": "2022-10-22T18:45:02Z",
+   "name": "eth0",
+   "rxBytes": 680926297,
+   "rxErrors": 0,
+   "txBytes": 43422651,
+   "txErrors": 0,
+   "interfaces": [
+    {
+     "name": "wlan0",
+     "rxBytes": 0,
+     "rxErrors": 0,
+     "txBytes": 0,
+     "txErrors": 0
+    },
+    {
+     "name": "eth0",
+     "rxBytes": 680926297,
+     "rxErrors": 0,
+     "txBytes": 43422651,
+     "txErrors": 0
+    }
+   ]
+  },
+  "fs": {
+   "time": "2022-10-22T18:45:02Z",
+   "availableBytes": 22324531200,
+   "capacityBytes": 31064162304,
+   "usedBytes": 7425003520,
+   "inodesFree": 1805511,
+   "inodes": 1933312,
+   "inodesUsed": 127801
+  },
+  "runtime": {
+   "imageFs": {
+    "time": "2022-10-22T18:45:02Z",
+    "availableBytes": 22324531200,
+    "capacityBytes": 31064162304,
+    "usedBytes": 1395364102,
+    "inodesFree": 1805511,
+    "inodes": 1933312,
+    "inodesUsed": 127801
+   }
+  },
+  "rlimit": {
+   "time": "2022-10-22T18:45:17Z",
+   "maxpid": 4194304,
+   "curproc": 204
+  }
+ },
+ "pods": []
+}
+```
+
+Once completed the following info should be available
+
+```sh
+$ kubectl top nodes
+NAME             CPU(cores)   CPU%        MEMORY(bytes)   MEMORY%     
+edgenode01       48m          1%          1272Mi          34%         
+edgenode02       41m          1%          1169Mi          31%         
+rpi3             97m          2%          403Mi           49%         
+ubuntu-desktop   1688m        21%         9959Mi          41%         
+```
 
 ## Gitlab Runner
 

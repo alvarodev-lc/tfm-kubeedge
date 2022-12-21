@@ -194,6 +194,20 @@ Install Prometheus Stack version 35.0.3 using Helm
 helm install prometheus --create-namespace --namespace monitoring --values /home/alvaro/infra/prometheus.yaml prometheus-community/kube-prometheus-stack --version 35.0.3
 ```
 
+You need to forward the service port in order to access the web interface
+
+Prometheus
+
+```sh
+kubectl port-forward -n monitoring service/prometheus-kube-prometheus-prometheus --address 0.0.0.0 9090:9090
+```
+
+Grafana
+
+```sh
+kubectl port-forward -n monitoring service/prometheus-grafana --address 0.0.0.0 3000:80
+```
+
 ## Metrics Server
 
 Deploys metric server on the Cloud. To deploy metric server components on the Edge nodes and get further information, please check the metrics server PDF file in this folder.
