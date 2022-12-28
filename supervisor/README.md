@@ -12,7 +12,7 @@ Each configuration executes one script to bring up a different process. Supervis
 
 Files found in conf should be placed under /etc/supervisor/conf.d
 
-File supervisord.conf is under /etc/supervidor and must be replaced with the ports, credentials and IP you want to use.
+File supervisord.conf is under /etc/supervisor and must be replaced with the ports, credentials and IP you want to use.
 
 ## Cheatsheet
 
