@@ -147,6 +147,12 @@ Check your cloudcore node is up and running in the Kubernetes cluster
 kubectl get nodes
 ```
 
+Get KubeEdge token to join Edge nodes to the cluster
+
+```sh
+keadm gettoken --kube-config ${HOME}/.kube/config
+```
+
 ## Edge
 
 Once KubeEdge is installed following the [KubeEdge section](https://github.com/alvarodev-lc/tfm-kubeedge#kubeedge), and the token has been obtained, we can join edge nodes to the cluster
